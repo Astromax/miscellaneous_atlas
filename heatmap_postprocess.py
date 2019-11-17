@@ -19,11 +19,13 @@ import os, argparse, sys, glob, time
 import ROOT as root
 import math
 import ast
+from tabulate import tabulate
+import numpy as np
 
 root.gROOT.SetBatch(root.kFALSE)
 
 ## Globals
-v = 'v5'
+v = 'v0'
 time = time.strftime('%m-%d')
 heatmap_post_process_log = open('HMPP_log_%s_%s.txt' % (time,v), 'w')
 #-------------------------------------------------------------------------------
@@ -70,6 +72,19 @@ def main():
 #    print 'We have this Ratio Map'
 #    print(rmaps)
 #    return
+
+    scale = (138.0/36.0)
+    electrons = np.array([38.72, 24.47, 14.40, 9.13, 6.23, 4.57, 3.47, 2.73, 2.16, 1.73, 1.51, 16.43])
+    muons = np.array([5.01, 5.94, 3.94, 2.79, 2.03, 1.51, 1.17, 0.92, 0.74, 0.60, 0.53, 5.72])
+    bintotals = electrons+muons
+    grandbins = [t*scale for t in list(bintotals)]
+
+    grandtotals = [sum(grandbins[i:]) for i in range(len(grandbins)+1)]
+    ptbins = [20,40,60,80,100,120,140,160,180,200,220,240]
+    rows = zip(ptbins, grandtotals)
+    headers = ['Pt', 'Total Background']
+    print(tabulate(rows, headers, tablefmt="latex"))
+
 
 
     heatmap_post_process_log.write('Now retriving rootfile... \n')
